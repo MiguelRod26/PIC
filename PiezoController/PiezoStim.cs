@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Timers;
 
-namespace PIC
+namespace PiezoController
 {
     public class PiezoStim
     {

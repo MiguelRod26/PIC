@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using PIC;
+using PiezoController;
 
 
 internal class Program

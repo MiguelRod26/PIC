@@ -1,4 +1,4 @@
-﻿namespace PIC
+﻿namespace PiezoController
 {
     //Receives a protocol file in txt and has available the ISI and the List of stimuli to be ran by the execute 
     internal class ProtocolReader

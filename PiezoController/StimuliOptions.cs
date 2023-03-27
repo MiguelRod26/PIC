@@ -1,4 +1,4 @@
-﻿namespace PIC
+﻿namespace PiezoController
 {
     public class StimuliOptions 
     {

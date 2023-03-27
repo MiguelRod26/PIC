@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using PIC;
+using PiezoController;
 
-namespace PIC
+namespace PiezoController
 {
     public class ProtocolManager
     {

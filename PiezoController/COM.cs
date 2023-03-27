@@ -1,6 +1,6 @@
 ﻿using System.IO.Ports;
 
-namespace PIC
+namespace PiezoController
 {
     public class COM : IDisposable
     {
