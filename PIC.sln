@@ -3,14 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PIC", "PIC.csproj", "{BA780843-C856-4076-8783-E5F49C5FE9EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PIC", "PiezoController\PIC.csproj", "{1DEA8AC4-D30C-448C-B334-5F75EC17C20E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowPIC", "..\PICwindow\WindowPIC\WindowPIC.csproj", "{5F0C62E6-3B00-49BF-9AF0-0C8FC5B80580}"
-	ProjectSection(ProjectDependencies) = postProject
-		{BA780843-C856-4076-8783-E5F49C5FE9EB} = {BA780843-C856-4076-8783-E5F49C5FE9EB}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF_ PIC", "..\WPF_ PIC\WPF_ PIC.csproj", "{6FFA3819-45BD-4FF1-B588-FDD4029FE882}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WPF_ PIC", "WPF_PIC\WPF_ PIC.csproj", "{1EF59F0E-43EF-4DFE-850D-9D161A0EFBFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,18 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BA780843-C856-4076-8783-E5F49C5FE9EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA780843-C856-4076-8783-E5F49C5FE9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA780843-C856-4076-8783-E5F49C5FE9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA780843-C856-4076-8783-E5F49C5FE9EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F0C62E6-3B00-49BF-9AF0-0C8FC5B80580}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F0C62E6-3B00-49BF-9AF0-0C8FC5B80580}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F0C62E6-3B00-49BF-9AF0-0C8FC5B80580}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F0C62E6-3B00-49BF-9AF0-0C8FC5B80580}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FFA3819-45BD-4FF1-B588-FDD4029FE882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FFA3819-45BD-4FF1-B588-FDD4029FE882}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FFA3819-45BD-4FF1-B588-FDD4029FE882}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FFA3819-45BD-4FF1-B588-FDD4029FE882}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DEA8AC4-D30C-448C-B334-5F75EC17C20E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DEA8AC4-D30C-448C-B334-5F75EC17C20E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DEA8AC4-D30C-448C-B334-5F75EC17C20E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DEA8AC4-D30C-448C-B334-5F75EC17C20E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EF59F0E-43EF-4DFE-850D-9D161A0EFBFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EF59F0E-43EF-4DFE-850D-9D161A0EFBFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EF59F0E-43EF-4DFE-850D-9D161A0EFBFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EF59F0E-43EF-4DFE-850D-9D161A0EFBFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
