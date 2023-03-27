@@ -1,67 +1,20 @@
 ﻿namespace PiezoController
 {
-    public class StimuliOptions 
+    public class StimulusOptions
     {
-        //Fields to Stimuli Options
-        private double amplitudeV;
-        private double freqHZ;
-        private double time_durationS;
-        private double dutycycle;
-        private string modeToExecute;
-        //Usb manager
+        public double AmplitudeV { get;  }
+        public double FreqHZ { get;  }
+        public double TimeDurationSeconds { get;  }
+        public double Dutycycle { get; }
+        public ExecutionMode ModeToExecute { get; }
 
-        //Timers for Executable
-
-
-
-        //Properties
-        public double AmplitudeV
+        public StimulusOptions(ExecutionMode modeToExecute, double amplitude, double freq, double timeDuration, double dutyCycle = 50)
         {
-            get => amplitudeV; set
-            {
-                amplitudeV = value;
-                //OnPropertyChanged();
-            }
+            AmplitudeV = amplitude;
+            FreqHZ = freq;
+            TimeDurationSeconds = timeDuration;
+            Dutycycle = dutyCycle;
+            ModeToExecute = modeToExecute;
         }
-        public double FreqHZ
-        {
-            get => freqHZ; set
-            {
-                freqHZ = value;
-                //OnPropertyChanged();
-            }
-        }
-        public double Time_DurationS
-        {
-            get => time_durationS; set
-            {
-                time_durationS = value;
-                //OnPropertyChanged();
-            }
-        }
-        public double Dutycycle
-        {
-            get => dutycycle; set { dutycycle = value; }
-        }
-        public string ModeToExecute
-        {
-            get => modeToExecute; set
-            {
-                modeToExecute = value;
-                //OnPropertyChanged();
-            }
-        }
-
-
-        //End of proprieties,
-        //Constructor
-        public StimuliOptions(double _amplitude = 0, double _freq = 0, double _time_duration = 0)
-        {
-            AmplitudeV = _amplitude;
-            FreqHZ = _freq;
-            Time_DurationS = _time_duration;
-        }
-
     }   
-        
 }

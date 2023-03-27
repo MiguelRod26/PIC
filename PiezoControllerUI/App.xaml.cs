@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace WPF__PIC
+namespace PiezoControllerUI
 {
     /// <summary>
     /// Interaction logic for App.xaml

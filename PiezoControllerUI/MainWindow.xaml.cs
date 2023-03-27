@@ -1,27 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.DirectoryServices.ActiveDirectory;
+using System.ComponentModel;
 using System.IO.Ports;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
 using Microsoft.Win32;
+
 using PiezoController;
 
-namespace WPF__PIC
+namespace PiezoControllerUI
 {
     /*Next steps :
      -Null warnings; 
@@ -32,133 +23,70 @@ namespace WPF__PIC
      -Protocol Running;
     */
 
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        public StimuliOptions stimuli;
-        public PiezoStim Piezo;
+        private double amplitude = 5;
+        private double frequency = 2;
+        private double duration = 5;
+        private double dutyCycle = 50;
+        private ExecutionMode mode = ExecutionMode.SquareWave;
+        private bool isRunning;
+        private bool automaticMode;
+
+        Piezo? piezo;
+        public StimulusOptions stimuli;
+        public StimuliExecuter StimulusExecuter;
         public ProtocolManager Protocol;
         private Thread stimuliThread;
-        private bool isRunning = false;
-        private bool ProtocolOption = false;
-        public MainWindow()
-        {
-            InitializeComponent();
-            PopulateUsbPorts();
-            stimuli = new StimuliOptions(0, 0, 0);
-            Piezo = new PiezoStim(stimuli);
-            Piezo.OnThreadFinish += OnStimThreadFinished;
-            //Initial Conditions
-            TypeStimuliCB.SelectedIndex = 0; //Mode
-            //USBPortsCB.SelectedIndex = 0; //USB Port
-            AmpTextBox.Text = "5"; //Amp in V
-            FreqTextBox.Text = "2"; //Freq in Hz
-            DurationTextBox.Text = "5"; //Duration in s
-            DutyCycleTextBox.Text = "50"; //DutyCycle in %
-        }
+        private string filename;
+        private SerialPortName selectedComPort;
 
-        private void PopulateUsbPorts()
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+
+        // Amp in V
+        // Freq in Hz
+        // Duration in s
+        // DutyCycle in %
+        public double Amplitude
         {
-            USBPortsCB.Items.Clear();
-            string[] portNames = SerialPort.GetPortNames();
-            foreach (string portName in portNames)
+            get => amplitude;
+            set
             {
-                USBPortsCB.Items.Add(portName);
-            }
-        }
-        private void USBPortsCB_DropDownClosed(object sender, EventArgs e)
-        {
-            Piezo.Com.Open(USBPortsCB.Text);
-        }
-     
-        private void StartStop_Click(object sender, RoutedEventArgs e)
-        {
-            //If the run protocol option is selected we wait for an event to happen from the protocol manager to change the button to stop
-            if (Protocol != null)
-            {
-                if (!ProtocolOption)
-                {
-                    if (!isRunning)
-                    {
-                        stimuliThread = new Thread(() => Piezo.RunStim(stimuli));
-                        stimuliThread.Start();
-
-                        isRunning = true;
-                        StartStopButton.Content = "Stop";
-                    }
-                    else
-                    {
-
-                        Piezo.StopStim();
-                        stimuliThread.Join(); // Wait for thread to exit
-                        ChangeStatusToStopped();
-                    }
-                }
-                else
-                {
-                    if (!isRunning)
-                    {
-                        stimuliThread = new Thread(() => Protocol.RunProtocol());
-                        stimuliThread.Start();
-
-                        isRunning = true;
-                        StartStopButton.Content = "Stop";
-                    }
-                    else
-                    {
-
-                        Piezo.StopStim();
-                        stimuliThread.Join(); // wait for thread to exit
-                        ChangeStatusToStopped();
-                    }
-                }
-            }
-        }
-       
-    
-        private void OnStimThreadFinished(object? sender, EventArgs e)
-        {
-            ChangeStatusToStopped();
-        }
-        private void ChangeStatusToStopped()
-        {
-            isRunning = false;
-            _ = Dispatcher.BeginInvoke(() => StartStopButton.Content = "Start");
-        }
-
-
-        private void TypeStimuliCB_DropDownClosed(object sender, EventArgs e)
-        {
-            stimuli.ModeToExecute = TypeStimuliCB.Text;
-        }
-        private void Duration_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (double.TryParse(DurationTextBox.Text, out double value))
-            {
-                stimuli.Time_DurationS = value;
+                amplitude = value;
+                OnPropertyChanged();
             }
         }
 
-        private void AmpTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        public string Filename
         {
-            if (double.TryParse(AmpTextBox.Text, out double value))
+            get => filename; set
             {
-                stimuli.AmplitudeV = value;
+                filename = value;
+                OnPropertyChanged();
             }
         }
 
-        private void FreqTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        public double Frequency
         {
-          
-            if (double.TryParse(FreqTextBox.Text, out double value))
+            get => frequency; set
             {
-                stimuli.FreqHZ = value;
+                frequency = value;
+                OnPropertyChanged();
             }
         }
-        private void DutyCycle_TextChanged(object sender, TextChangedEventArgs e)
+        public double Duration
         {
-            if (double.TryParse(DutyCycleTextBox.Text, out double value))
+            get => duration; set
             {
-                //Sets the value of the dutycycle between 0 and 100
+                duration = value;
+                OnPropertyChanged();
+            }
+        }
+        public double DutyCycle
+        {
+            get => dutyCycle; set
+            {
                 if (value <= 0)
                 {
                     value = 0;
@@ -167,60 +95,162 @@ namespace WPF__PIC
                 {
                     value = 100;
                 }
-                stimuli.Dutycycle = value;
 
+                dutyCycle = value;
+                OnPropertyChanged();
             }
+        }
+
+        public ExecutionMode Mode
+        {
+            get => mode; set
+            {
+                mode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsRunning
+        {
+            get => isRunning; set
+            {
+                isRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool AutomaticMode
+        {
+            get => automaticMode;
+            set
+            {
+                automaticMode = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<SerialPortName> SerialPortNames { get; private set; } = new List<SerialPortName>();
+        public List<ExecutionMode> ExecutionModes { get; } = new List<ExecutionMode>(Enum.GetValues(typeof(ExecutionMode)).Cast<ExecutionMode>());
+
+        public SerialPortName SelectedComPort
+        {
+            get => selectedComPort; set
+            {
+                selectedComPort = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+
+        public MainWindow()
+        {
+            DataContext = this;
+            InitializeComponent();
+            PopulateUsbPorts();
+
+            //stimuli = new StimulusOptions(0, 0, 0);
+            //StimulusExecuter = new StimuliExecuter(stimuli);
+            //StimulusExecuter.OnStimuliFinished += OnStimThreadFinished;
+
+        }
+
+        private void PopulateUsbPorts()
+        {
+            string[] portNames = SerialPort.GetPortNames();
+            foreach (string portName in portNames)
+            {
+                int id = int.Parse(Regex.Match(portName, "[0-9]+").Value);
+                SerialPortNames.Add(new SerialPortName(id, ""));
+            }
+        }
+
+
+        private void ButtonConnect_Click(object sender, RoutedEventArgs e)
+        {
+            if (piezo is not null)
+                piezo.Dispose();
+
+            piezo = new(SelectedComPort.PortID);
+            StimulusExecuter = new StimuliExecuter(piezo);
+        }
+
+        private void StartStop_Click(object sender, RoutedEventArgs e)
+        {
+            //If the run protocol option is selected we wait for an event to happen from the protocol manager to change the button to stop
+            if (Protocol != null)
+            {
+                if (!AutomaticMode)
+                {
+                    if (!IsRunning)
+                    {
+                        stimuliThread = new Thread(() => StimulusExecuter.RunStim(stimuli));
+                        stimuliThread.Start();
+
+                        IsRunning = true;
+                    }
+                    else
+                    {
+
+                        StimulusExecuter.StopStim();
+                        stimuliThread.Join(); // Wait for thread to exit
+                        IsRunning = false;
+                    }
+                }
+                else
+                {
+                    if (!IsRunning)
+                    {
+                        stimuliThread = new Thread(() => Protocol.RunProtocol());
+                        stimuliThread.Start();
+
+                        IsRunning = true;
+                    }
+                    else
+                    {
+
+                        StimulusExecuter.StopStim();
+                        stimuliThread.Join(); // wait for thread to exit
+                        IsRunning = false;
+                    }
+                }
+            }
+        }
+
+
+        private void OnStimThreadFinished(object? sender, EventArgs e)
+        {
+            IsRunning = false;
         }
 
         private void SelectFileButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            // Set filter for file extension and default file extension
-            openFileDialog.DefaultExt = ".txt";
-            openFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+            OpenFileDialog openFileDialog = new()
+            {
+                // Set filter for file extension and default file extension
+                DefaultExt = ".txt",
+                Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+            };
 
             // Display OpenFileDialog by calling ShowDialog method
             bool? result = openFileDialog.ShowDialog();
 
             if (result == true)
             {
-                string fileName = openFileDialog.FileName;
-                SelectedFileLabel.Content = fileName;
-                Protocol = new(fileName);
-                
+                Filename = openFileDialog.FileName;
+
+                //Protocol = new(fileName);
+
             }
         }
 
-        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+
+
+
+
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
-            if (sender == RadioButtonManual)
-            {
-                // Enable controls for Option 1
-                TypeStimuliCB.IsEnabled = true;
-                DurationTextBox.IsEnabled = true;
-                AmpTextBox.IsEnabled = true;
-                FreqTextBox.IsEnabled = true;
-
-                //Disable controls for Option 1
-                SelectFileButton.IsEnabled = false;
-
-                ProtocolOption = false;
-   
-            }
-            else if (sender == RadioButtonProtocol)
-            {
-                // Enable controls for Option 2
-                SelectFileButton.IsEnabled = true;
-
-                // Disable controls for Option 1
-                TypeStimuliCB.IsEnabled = false;
-                DurationTextBox.IsEnabled = false;
-                AmpTextBox.IsEnabled = false;
-                FreqTextBox.IsEnabled = false;
-
-                ProtocolOption = true;
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

@@ -1,101 +1,62 @@
 ﻿namespace PiezoController
 {
     //Receives a protocol file in txt and has available the ISI and the List of stimuli to be ran by the execute 
-    internal class ProtocolReader
+    public static class ProtocolReader
     {
-        private string[][]? Lines;
-        private List<StimuliOptions> stimuli = new List<StimuliOptions>();
-        private double[] isi;
-
-       
-        public List<StimuliOptions> Stimuli { get { return stimuli; } set => stimuli = value; }
-        public double[] ISI { get => isi; set => isi = value; }
-        
-        
-        public ProtocolReader(string FileName)
+        public static StimuliProtocol ReadFile(string filename)
         {
-            
-            using TextReader reader = File.OpenText($"{FileName}.txt");
-            string linha;
-            int counterline = 0;
+            List<StimulusOptions> stimulusOptionsList = new();
+            double fwi = 0;
+            double isi = 0;
 
-            while ((linha = reader.ReadLine()) != null)
+            using TextReader reader = File.OpenText($"{filename}.txt");
+
+            string? line;
+            int lineCounter = 0;
+            ExecutionMode mode;
+            double amplitude; double freq; double timeDuration;
+
+            while (true)
             {
-                int counteroption = 0;
-                string[] bits = linha.Split(',');//Separator for parameters
-                foreach (string bit in bits)
-                {
+                line = reader.ReadLine();
+                
+                if (line is null)
+                    break;
 
-                   
-                    Lines[counterline][counteroption] = bit;
-                   
-                    counteroption++;
-                }
+                string[] bits = line.Split(',');//Separator for parameters
+                
 
-                if (counterline == 0)
+                if (lineCounter == 0)
                 {
-                    ISI[0] = double.Parse(Lines[0][0]);
-                    ISI[1] = double.Parse(Lines[0][1]);
+                    fwi = double.Parse(bits[0]);
+                    isi = double.Parse(bits[1]);
                 }
                 else
                 {
-                    Stimuli.Add(new StimuliOptions());
-                    Stimuli[counterline - 1].ModeToExecute = Lines[counterline][0];
-                    Stimuli[counterline - 1].AmplitudeV = double.Parse(Lines[counterline][1]);
-                    Stimuli[counterline - 1].FreqHZ = double.Parse(Lines[counterline][2]);
-                    Stimuli[counterline - 1].Time_DurationS = double.Parse(Lines[counterline][3]);
-                    if (Lines[counterline][0] == "Square Wave")
-                    {
-                        Stimuli[counterline - 1].Dutycycle = double.Parse(Lines[counterline][4]);
-                    }
+                    mode = bits[0].ToExecutionMode();
+                    amplitude = double.Parse(bits[1]);
+                    freq = double.Parse(bits[2]);
+                    timeDuration = double.Parse(bits[3]);
 
+                    switch (mode)
+                    {
+                        case ExecutionMode.SquareWave:
+                            stimulusOptionsList.Add(new StimulusOptions(mode, amplitude, freq, timeDuration, 
+                                dutyCycle: double.Parse(bits[4])));
+                            break;
+                        case ExecutionMode.SineWave:
+                            stimulusOptionsList.Add(new StimulusOptions(mode, amplitude, freq, timeDuration));
+                            break;
+                        case ExecutionMode.Pulse:
+                            stimulusOptionsList.Add(new StimulusOptions(mode, amplitude, freq, timeDuration));
+                            break;
+                    }
                 }
-                counterline++;
+
+                lineCounter++;
             }
 
-        }
-
-        public void ReadNewFile(string NewFile)
-        {
-            Lines = null;
-            Stimuli.Clear();
-            using TextReader reader = File.OpenText($"{NewFile}.txt");
-            string linha;
-            int counterline = 0;
-
-            while ((linha = reader.ReadLine()) != null)
-            {
-                int counteroption = 0;
-                string[] bits = linha.Split(',');//Separator for parameters
-                foreach (string bit in bits)
-                {
-
-
-                    Lines[counterline][counteroption] = bit;
-
-                    counteroption++;
-                }
-
-                if (counterline == 0)
-                {
-                    ISI[0] = double.Parse(Lines[0][0]);
-                    ISI[1] = double.Parse(Lines[0][1]);
-                }
-                else
-                {
-                    Stimuli.Add(new StimuliOptions());
-                    Stimuli[counterline - 1].ModeToExecute = Lines[counterline][0];
-                    Stimuli[counterline - 1].AmplitudeV = double.Parse(Lines[counterline][1]);
-                    Stimuli[counterline - 1].FreqHZ = double.Parse(Lines[counterline][2]);
-                    Stimuli[counterline - 1].Time_DurationS = double.Parse(Lines[counterline][3]);
-                    if (Lines[counterline][0] == "Square Wave")
-                    {
-                        Stimuli[counterline - 1].Dutycycle = double.Parse(Lines[counterline][4]);
-                    }
-
-                }
-                counterline++;
-            }
+            return new StimuliProtocol(stimulusOptionsList, fwi, isi);
         }
 
     }

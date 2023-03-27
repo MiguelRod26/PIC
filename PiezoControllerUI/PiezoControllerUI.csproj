@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PiezoController\PIC.csproj" />
+    <ProjectReference Include="..\PiezoController\PiezoController.csproj" />
   </ItemGroup>
 
 </Project>
