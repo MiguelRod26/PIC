@@ -3,10 +3,10 @@
     public class StimuliProtocol
     {
         public List<StimulusOptions> StimulusOptionsList { get; }
-        public double FirstWaitingInterval { get; }
-        public double ISI { get; }
+        public int FirstWaitingInterval { get; }
+        public int ISI { get; }
 
-        public StimuliProtocol(List<StimulusOptions> stimOptions, double fwi, double isi)
+        public StimuliProtocol(List<StimulusOptions> stimOptions, int fwi, int isi)
         {
             StimulusOptionsList = stimOptions;
             FirstWaitingInterval = fwi;

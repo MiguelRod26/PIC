@@ -9,131 +9,163 @@
         d:DataContext="{d:DesignInstance Type=local:MainWindow, IsDesignTimeCreatable=False}"
         Title="Piezo Controlling Machine" Height="450" Width="800">
 
-    <Grid Margin="0,0,-280,-178">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0*"/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Button Name="StartStopButton" HorizontalAlignment="Left" Margin="51,156,0,0" VerticalAlignment="Top" Height="31" Width="95" Click="StartStop_Click" Grid.ColumnSpan="2">
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Setter Property="Content" Value="Start"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=IsRunning}" Value="True">
-                            <Setter Property="Content" Value="Stop"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-        </Button>
-        <ComboBox Name="USBPortsCB" HorizontalAlignment="Left" Margin="50,75,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Path=SerialPortNames}" SelectedItem="{Binding Path=SelectedComPort, UpdateSourceTrigger=PropertyChanged}"  Grid.ColumnSpan="2"/>
+    <Grid>
+        <StackPanel>
 
+            <StackPanel Width="251">
+                <Label Content="Choose USB Port for connection to piezo:" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="230"/>
+                <WrapPanel>
+                    <ComboBox Name="USBPortsCB" HorizontalAlignment="Left"  VerticalAlignment="Top" Width="120" ItemsSource="{Binding Path=SerialPortNames}" SelectedItem="{Binding Path=SelectedComPort, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button x:Name="ButtonConnect" Content="Connect"  HorizontalAlignment="Left" VerticalAlignment="Top" Click="ButtonConnect_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsRunning, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </WrapPanel>
+            </StackPanel>
+            <Button x:Name="StartStopButton" Height="31" Width="96" Click="StartStop_Click" Margin="0,10,0,10">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Content" Value="Start"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                <Setter Property="Content" Value="Stop"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Width="222">
+                    <RadioButton x:Name="RadioButtonManual" Content="Manual Stimulus:" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="True">
+                        <RadioButton.Style>
+                            <Style TargetType="{x:Type RadioButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRunning, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </RadioButton.Style>
+                    </RadioButton>
+                    <Label Content="Types of stimuli" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                    <ComboBox x:Name="TypeStimuliCB" ItemsSource="{Binding ExecutionModes}" SelectedItem="{Binding Mode, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" />
+                    <Label Content="Settings for Stim:" HorizontalAlignment="Left"  VerticalAlignment="Top" />
+                    <WrapPanel>
+                        <Label x:Name="DCL" Content="DutyCycle" d:Visibility="Visible"  HorizontalAlignment="Left" VerticalAlignment="Top" >
+                            <Label.Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Setter Property="Visibility" Value="Hidden" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Mode, UpdateSourceTrigger=PropertyChanged}" Value="SquareWave">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
 
-        <Label Content="Choose USB Port for connection to piezo:" HorizontalAlignment="Left" Margin="10,28,0,0" VerticalAlignment="Top" Height="28" Width="230" Grid.ColumnSpan="2"/>
-        <ComboBox Name="TypeStimuliCB" ItemsSource="{Binding Path=ExecutionModes}" SelectedItem="{Binding Path=Mode, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="26,275,0,0"  VerticalAlignment="Top" Width="120" Grid.ColumnSpan="2" />
+                                </Style>
+                            </Label.Style>
+                        </Label>
+                        <TextBox x:Name="DutyCycleTextBox"  d:Visibility="Visible" HorizontalAlignment="Left"  TextWrapping="Wrap" Text="{Binding DutyCycle, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="35" Height="20" >
+                            <TextBox.Style>
+                                <Style TargetType="{x:Type TextBox}">
+                                    <Setter Property="Visibility" Value="Hidden" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Mode, UpdateSourceTrigger=PropertyChanged}" Value="SquareWave">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
 
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <Label x:Name="DCLP" Content="%"  d:Visibility="Visible" HorizontalAlignment="Left"  VerticalAlignment="Top" >
+                            <Label.Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Setter Property="Visibility" Value="Hidden" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedIndex, ElementName=TypeStimuliCB}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
 
-        <Label Content="Types of stimuli" HorizontalAlignment="Left" Margin="26,244,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <Label Content="Amplitude" HorizontalAlignment="Left" Margin="11,363,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <Label Content="Freq" HorizontalAlignment="Left" Margin="43,396,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <Label Content="V" HorizontalAlignment="Left" Margin="120,363,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.476,1.639" Grid.ColumnSpan="2"/>
-        <Label Content="Hz" HorizontalAlignment="Left" Margin="117,399,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.124,-2.167" Grid.ColumnSpan="2"/>
-        <TextBox Name="AmpTextBox" HorizontalAlignment="Left" Margin="76,367,0,0" TextWrapping="Wrap" Text="{Binding Path=Amplitude, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="42" Height="22"  Grid.ColumnSpan="2">
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
-                            <Setter Property="IsEnabled" Value="False"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-        <TextBox Name="FreqTextBox" HorizontalAlignment="Left" Margin="76,402,0,0" TextWrapping="Wrap" Text="{Binding Path=Frequency, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="42" Height="20" Grid.ColumnSpan="2">
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
-                            <Setter Property="IsEnabled" Value="False"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-        <Label Content="Settings for Stim:" HorizontalAlignment="Left" Margin="10,337,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <Label Content="Duration of Stims:" HorizontalAlignment="Left" Margin="10,311,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <TextBox Name="DurationTextBox" HorizontalAlignment="Left" Margin="120,315,0,0" TextWrapping="Wrap" Text="{Binding Path=Duration, UpdateSourceTrigger=PropertyChanged}"  VerticalAlignment="Top" Width="45" Height="22"  Grid.ColumnSpan="2">
-            <TextBox.Style>
-                <Style TargetType="TextBox">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
-                            <Setter Property="IsEnabled" Value="False"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-        <Label Content="s" HorizontalAlignment="Left" Margin="165,313,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
-        <TextBox Name="DutyCycleTextBox"  d:Visibility="Visible" HorizontalAlignment="Left" Margin="240,227,0,0" TextWrapping="Wrap" Text="{Binding Path=DutyCycle, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="35" Height="20" RenderTransformOrigin="-1.14,0.572" Grid.ColumnSpan="2">
-            <TextBox.Style>
-                <Style TargetType="{x:Type TextBox}">
-                    <Setter Property="Visibility" Value="Hidden" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=Mode, UpdateSourceTrigger=PropertyChanged}" Value="SquareWave">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Path=AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
-                            <Setter Property="IsEnabled" Value="False"/>
-                        </DataTrigger>
-                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                        </Label>
+                    </WrapPanel>
+                    <WrapPanel>
+                        <Label Content="N of Repetitions:" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <TextBox x:Name="RepetitionsTextBox" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Repetitions, UpdateSourceTrigger=PropertyChanged}"  VerticalAlignment="Top" Width="45" Height="22"  >
+                            <TextBox.Style>
+                                <Style TargetType="{x:Type TextBox}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </WrapPanel>
+                    <WrapPanel>
+                        <Label Content="Amplitude" HorizontalAlignment="Left"  VerticalAlignment="Top" />
+                        <TextBox x:Name="AmpTextBox" HorizontalAlignment="Left"  TextWrapping="Wrap" Text="{Binding Amplitude, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="42" Height="22"  >
+                            <TextBox.Style>
+                                <Style TargetType="{x:Type TextBox}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <Label Content="V" HorizontalAlignment="Left" VerticalAlignment="Top"  />
+                    </WrapPanel>
+                    <WrapPanel>
+                        <Label Content="Freq" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <TextBox x:Name="FreqTextBox" HorizontalAlignment="Left"  TextWrapping="Wrap" Text="{Binding Frequency, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="42" Height="20">
+                            <TextBox.Style>
+                                <Style TargetType="{x:Type TextBox}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <Label Content="Hz" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    </WrapPanel>
+                </StackPanel>
 
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-        <Label Name="DCL" Content="DutyCycle" d:Visibility="Visible"  HorizontalAlignment="Left" Margin="177,223,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.187,-0.831" Grid.ColumnSpan="2">
-            <Label.Style>
-                <Style TargetType="{x:Type Label}">
-                    <Setter Property="Visibility" Value="Hidden" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=Mode, UpdateSourceTrigger=PropertyChanged}" Value="SquareWave">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-
-                </Style>
-            </Label.Style>
-        </Label>
-        <Label Name="DCLP" Content="%"  d:Visibility="Visible" HorizontalAlignment="Left" Margin="275,223,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.005,-0.191" Grid.ColumnSpan="2">
-            <Label.Style>
-                <Style TargetType="{x:Type Label}">
-                    <Setter Property="Visibility" Value="Hidden" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=SelectedIndex, ElementName=TypeStimuliCB}" Value="0">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-
-                </Style>
-            </Label.Style>
-        </Label>
-        <Button Name ="SelectFileButton" IsEnabled="{Binding Path=AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Content="Select File" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="600,308,0,0" VerticalAlignment="Top" Height="23" Width="90" Click="SelectFileButton_Click"/>
-        <Label Content="Set up a protocol:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="471,268,0,0" VerticalAlignment="Top"/>
-        <Label Name="SelectedFileLabel" d:Content="filename" Content="{Binding Path=Filename, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="384,309,0,0" VerticalAlignment="Top" Width="98" FontSize="11"/>
-        <RadioButton Name="RadioButtonManual" Content="Manual Stimulus:" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="55,211,0,0" VerticalAlignment="Top" IsChecked="True" />
-        <RadioButton Name="RadioButtonProtocol"  Content="Automatic Stimulus:" HorizontalAlignment="Center" Margin="0,214,0,0" VerticalAlignment="Top" Grid.Column="1" IsChecked="{Binding Path=AutomaticMode, UpdateSourceTrigger=PropertyChanged}"/>
-        <Button x:Name="ButtonConnect" Content="Connect" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="209,76,0,0" VerticalAlignment="Top" Click="ButtonConnect_Click">
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=IsRunning, UpdateSourceTrigger=PropertyChanged}" Value="True">
-                            <Setter Property="IsEnabled" Value="False"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-        </Button>
-
-
+                <StackPanel DockPanel.Dock="Right" Width="354" Height="97" >
+                    <RadioButton x:Name="RadioButtonProtocol"  Content="Automatic Stimulus:"  VerticalAlignment="Top" IsChecked="{Binding AutomaticMode, UpdateSourceTrigger=PropertyChanged}">
+                        <RadioButton.Style>
+                            <Style TargetType="{x:Type RadioButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRunning, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </RadioButton.Style>
+                    </RadioButton>
+                    <WrapPanel>
+                        <Label Content="Set up a protocol:"  HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+                        <Button x:Name ="SelectFileButton" IsEnabled="{Binding AutomaticMode, UpdateSourceTrigger=PropertyChanged}" Content="Select File" HorizontalAlignment="Left"  VerticalAlignment="Top" Height="23" Width="90" Click="SelectFileButton_Click"/>
+                    </WrapPanel>
+                    <Label x:Name="SelectedFileLabel" d:Content="filename" Content="{Binding Filename, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="98" FontSize="11"/>
+                </StackPanel>
+            </DockPanel>
+        </StackPanel>
     </Grid>
-
 </Window>

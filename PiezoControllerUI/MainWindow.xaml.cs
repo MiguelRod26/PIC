@@ -5,7 +5,6 @@ using System.IO.Ports;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Windows;
 
 using Microsoft.Win32;
@@ -15,11 +14,8 @@ using PiezoController;
 namespace PiezoControllerUI
 {
     /*Next steps :
-     -Null warnings; 
-     -Plot the stimuli type;
-     -If the button is running cant change stats;
- 
-     -Parametros: deadtime(trial interval ISI - transitar para frames da camara); dutycycle (square wave uptime%) DONE
+     -Plot the stimuli type; 
+     -Parametros: deadtime(trial interval ISI - transitar para frames da camara)
      -Protocol Running;
     */
 
@@ -27,26 +23,25 @@ namespace PiezoControllerUI
     {
         private double amplitude = 5;
         private double frequency = 2;
-        private double duration = 5;
+        private int repetitions = 2;
         private double dutyCycle = 50;
         private ExecutionMode mode = ExecutionMode.SquareWave;
         private bool isRunning;
         private bool automaticMode;
+        private Piezo? Piezo { get; set; }
+        public StimuliExecuter? StimulusExecuter { get; private set; }
+        public ProtocolManager? ProtocolManager { get; private set; }
+        public StimuliProtocol? Protocol { get; set; }
 
-        Piezo? piezo;
-        public StimulusOptions stimuli;
-        public StimuliExecuter StimulusExecuter;
-        public ProtocolManager Protocol;
-        private Thread stimuliThread;
-        private string filename;
-        private SerialPortName selectedComPort;
+        private string filename = string.Empty;
+        private SerialPortName? selectedComPort;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
 
         // Amp in V
         // Freq in Hz
-        // Duration in s
+        // N of Repetitions of the stim type
         // DutyCycle in %
         public double Amplitude
         {
@@ -75,11 +70,11 @@ namespace PiezoControllerUI
                 OnPropertyChanged();
             }
         }
-        public double Duration
+        public int Repetitions
         {
-            get => duration; set
+            get => repetitions; set
             {
-                duration = value;
+                repetitions = value;
                 OnPropertyChanged();
             }
         }
@@ -132,7 +127,7 @@ namespace PiezoControllerUI
         public List<SerialPortName> SerialPortNames { get; private set; } = new List<SerialPortName>();
         public List<ExecutionMode> ExecutionModes { get; } = new List<ExecutionMode>(Enum.GetValues(typeof(ExecutionMode)).Cast<ExecutionMode>());
 
-        public SerialPortName SelectedComPort
+        public SerialPortName? SelectedComPort
         {
             get => selectedComPort; set
             {
@@ -143,16 +138,14 @@ namespace PiezoControllerUI
 
 
 
+        public HamamatsuCamera.HamamatsuCamera Camera { get; }
+
         public MainWindow()
         {
             DataContext = this;
             InitializeComponent();
             PopulateUsbPorts();
-
-            //stimuli = new StimulusOptions(0, 0, 0);
-            //StimulusExecuter = new StimuliExecuter(stimuli);
-            //StimulusExecuter.OnStimuliFinished += OnStimThreadFinished;
-
+            Camera = new HamamatsuCamera.HamamatsuCamera();
         }
 
         private void PopulateUsbPorts()
@@ -168,59 +161,67 @@ namespace PiezoControllerUI
 
         private void ButtonConnect_Click(object sender, RoutedEventArgs e)
         {
-            if (piezo is not null)
-                piezo.Dispose();
+            if (SelectedComPort is null)
+            {
+                MessageBox.Show("Choose a COM Port");
+                return;
+            }
 
-            piezo = new(SelectedComPort.PortID);
-            StimulusExecuter = new StimuliExecuter(piezo);
+
+            if (Piezo is not null)
+                Piezo.Dispose();
+
+            Piezo = new(SelectedComPort.PortID);
+            StimulusExecuter = new StimuliExecuter(Piezo);
+            StimulusExecuter.OnStimulusFinished += StimulusExecuter_OnStimulusFinished;
+            ProtocolManager = new ProtocolManager(StimulusExecuter, Camera);
+            ProtocolManager.OnThreadFinish += ProtocolManager_OnThreadFinish;
+        }
+
+        private void ProtocolManager_OnThreadFinish(object? sender, EventArgs e)
+        {
+            IsRunning = false;
+        }
+
+        private void StimulusExecuter_OnStimulusFinished(object? sender, EventArgs e)
+        {
+            if (!AutomaticMode)
+                IsRunning = false;
         }
 
         private void StartStop_Click(object sender, RoutedEventArgs e)
         {
             //If the run protocol option is selected we wait for an event to happen from the protocol manager to change the button to stop
-            if (Protocol != null)
+            if (!AutomaticMode) // manual
             {
-                if (!AutomaticMode)
+                if (!IsRunning)
                 {
-                    if (!IsRunning)
+                    if (StimulusExecuter is not null)
                     {
-                        stimuliThread = new Thread(() => StimulusExecuter.RunStim(stimuli));
-                        stimuliThread.Start();
-
+                        StimulusExecuter.StartStim(new StimulusOptions(Mode, Amplitude, Frequency, Repetitions, DutyCycle));
                         IsRunning = true;
-                    }
-                    else
-                    {
-
-                        StimulusExecuter.StopStim();
-                        stimuliThread.Join(); // Wait for thread to exit
-                        IsRunning = false;
                     }
                 }
                 else
                 {
-                    if (!IsRunning)
-                    {
-                        stimuliThread = new Thread(() => Protocol.RunProtocol());
-                        stimuliThread.Start();
-
-                        IsRunning = true;
-                    }
-                    else
-                    {
-
-                        StimulusExecuter.StopStim();
-                        stimuliThread.Join(); // wait for thread to exit
-                        IsRunning = false;
-                    }
+                    StimulusExecuter?.StopStim();
                 }
             }
-        }
-
-
-        private void OnStimThreadFinished(object? sender, EventArgs e)
-        {
-            IsRunning = false;
+            else // automatic
+            {
+                if (!IsRunning)
+                {
+                    if (Protocol is not null && ProtocolManager is not null)
+                    {
+                        ProtocolManager.StartProtocol(Protocol);
+                        IsRunning = true;
+                    }
+                }
+                else
+                {
+                    ProtocolManager?.StopProtocol();
+                }
+            }
         }
 
         private void SelectFileButton_Click(object sender, RoutedEventArgs e)
@@ -238,9 +239,7 @@ namespace PiezoControllerUI
             if (result == true)
             {
                 Filename = openFileDialog.FileName;
-
-                //Protocol = new(fileName);
-
+                Protocol = ProtocolReader.ReadFile(Filename);
             }
         }
 
