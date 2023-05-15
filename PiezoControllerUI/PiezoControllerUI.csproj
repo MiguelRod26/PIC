@@ -12,10 +12,4 @@
     <ProjectReference Include="..\PiezoController\PiezoController.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="HamamatsuCamera">
-      <HintPath>..\..\..\..\source\repos\StimStarterFromCAmeraTrigger\HamamatsuCamera\bin\Debug\net6.0\HamamatsuCamera.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

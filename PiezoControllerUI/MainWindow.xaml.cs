@@ -138,14 +138,15 @@ namespace PiezoControllerUI
 
 
 
-        public HamamatsuCamera.HamamatsuCamera Camera { get; }
+        //public HamamatsuCamera.HamamatsuCamera Camera { get; }
 
         public MainWindow()
         {
             DataContext = this;
             InitializeComponent();
             PopulateUsbPorts();
-            Camera = new HamamatsuCamera.HamamatsuCamera();
+            //  Camera = new HamamatsuCamera.HamamatsuCamera();
+            
         }
 
         private void PopulateUsbPorts()
@@ -174,7 +175,7 @@ namespace PiezoControllerUI
             Piezo = new(SelectedComPort.PortID);
             StimulusExecuter = new StimuliExecuter(Piezo);
             StimulusExecuter.OnStimulusFinished += StimulusExecuter_OnStimulusFinished;
-            ProtocolManager = new ProtocolManager(StimulusExecuter, Camera);
+            ProtocolManager = new ProtocolManager(StimulusExecuter);
             ProtocolManager.OnThreadFinish += ProtocolManager_OnThreadFinish;
         }
 
