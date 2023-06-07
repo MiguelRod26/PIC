@@ -16,6 +16,18 @@
     <Reference Include="HamamatsuCamera">
       <HintPath>..\..\..\..\source\repos\StimStarterFromCAmeraTrigger\HamamatsuCamera\bin\Debug\net6.0\HamamatsuCamera.dll</HintPath>
     </Reference>
+    <Reference Include="Sardine.Constructs">
+      <HintPath>..\..\orgerlab-c-library\OrgerLab\SARDINE\Sardine.Devices.NI.DAQ\bin\Debug\net6.0\Sardine.Constructs.dll</HintPath>
+    </Reference>
+    <Reference Include="Sardine.Devices.NI.DAQ">
+      <HintPath>..\..\orgerlab-c-library\OrgerLab\SARDINE\Sardine.Devices.NI.DAQ\bin\Debug\net6.0\Sardine.Devices.NI.DAQ.dll</HintPath>
+    </Reference>
+    <Reference Include="Sardine.Utils.Measurements">
+      <HintPath>..\..\orgerlab-c-library\OrgerLab\SARDINE\Sardine.Devices.NI.DAQ\bin\Debug\net6.0\Sardine.Utils.Measurements.dll</HintPath>
+    </Reference>
+    <Reference Include="Sardine.Utils.Waveforms">
+      <HintPath>..\..\orgerlab-c-library\OrgerLab\SARDINE\Sardine.Utils.Waveforms\bin\Debug\net6.0\Sardine.Utils.Waveforms.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

@@ -23,6 +23,7 @@
                 "squareWave" => ExecutionMode.SquareWave,
                 "squarewave" => ExecutionMode.SquareWave,
                 "square" => ExecutionMode.SquareWave,
+                "Square" => ExecutionMode.SquareWave,
                 "sine wave" => ExecutionMode.SineWave,
                 "Sine Wave" => ExecutionMode.SineWave,
                 "SineWave" => ExecutionMode.SineWave,

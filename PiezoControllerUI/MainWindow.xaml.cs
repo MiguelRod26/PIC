@@ -11,6 +11,9 @@ using Microsoft.Win32;
 
 using PiezoController;
 
+using Sardine.Devices.NI.DAQ;
+using Sardine.Utils.Waveforms;
+
 namespace PiezoControllerUI
 {
     /*Next steps :
@@ -146,7 +149,10 @@ namespace PiezoControllerUI
             InitializeComponent();
             PopulateUsbPorts();
             Camera = new HamamatsuCamera.HamamatsuCamera();
+
         }
+
+       
 
         private void PopulateUsbPorts()
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -37,6 +38,7 @@ namespace PiezoController
         {
             CurrentFrame = e.FrameNumber;
 
+
             if (e.FrameNumber == NextCameraFrameForTrigger)
                 cameraFrameTriggerEvent.Set();
         }
@@ -44,6 +46,8 @@ namespace PiezoController
 
         public void StartProtocol(StimuliProtocol protocol)
         {
+            CurrentFrame = 0;
+
             tokenSource = new CancellationTokenSource();
 
             protocolThread = new Thread(new ParameterizedThreadStart(
