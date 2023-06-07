@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
-using HamamatsuCamera;
+//using HamamatsuCamera;
 
 using PiezoController;
 
@@ -27,11 +27,11 @@ namespace PiezoController
 
         private int NextCameraFrameForTrigger { get; set; } = -1;
 
-        public ProtocolManager(StimuliExecuter executer, ICamera camera)
+        public ProtocolManager(StimuliExecuter executer)
         {
             Executer = executer;
-            Camera = camera;
-            Camera.OnCameraFrame += Camera_OnCameraFrame;
+           // Camera = camera;
+            //Camera.OnCameraFrame += Camera_OnCameraFrame;
         }
 
         private void Camera_OnCameraFrame(object? sender, CameraFrameEventArgs e)
