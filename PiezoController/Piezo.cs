@@ -24,10 +24,10 @@ namespace PiezoController
         public void SetVoltage(double value)
         {
             Com.WriteLine($"xvoltage={value}");
-            Blabla();
+            //Blabla(dutycycle,numberofrepetitions,waveformrate,highvalue);
         }
 
-        private void Blabla()
+        private void SquareOscilate(double dutycycle, double numberofrepetitions, double waveformrate, double highvalue )
         {
             DAQBoard board = DAQBoard.GetDAQInfo();
 
@@ -39,15 +39,34 @@ namespace PiezoController
 
             SquareWaveGeneratorOptions options = new()
             {
-                DutyCycle = 0.1,
-                NumberOfRepetitions = 5,
-                WaveformRate = 100,
-                HighValue = 10,
+                DutyCycle = dutycycle,
+                NumberOfRepetitions = numberofrepetitions,  
+                WaveformRate = waveformrate, //stim freq
+                HighValue = highvalue,   //amp
             };
             waveformSupplier.SampleRate = options.WaveformRate*10;
 
 
             //ConstantValueWaveOptions options = new() { Value = 5 };
+
+            waveformSupplier.GenerateAndSupplyWaveform(options);
+
+            piezoDevice.OnExecutionStatusChanged += PiezoDevice_OnExecutionStatusChanged;
+            piezoDevice.Start();
+
+
+        }
+        private void Pulse(double value)
+        {
+            DAQBoard board = DAQBoard.GetDAQInfo();
+
+            DaqPhysicalChannelID piezoChannel = board.IO.AnalogOut[3];
+
+            DAQControlledAODevice piezoDevice = new(board, piezoChannel, 0, 10);
+
+            WaveformSupplier waveformSupplier = new(piezoDevice);
+
+            ConstantValueWaveOptions options = new() { Value = value };
 
             waveformSupplier.GenerateAndSupplyWaveform(options);
 
